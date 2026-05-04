@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.jvm") version "1.9.22"
     id("java-library")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "1.2.1"
@@ -14,16 +14,22 @@ java {
     withSourcesJar()
 }
 
-kotlin {
-    jvmToolchain(17)
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-stdlib")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.22")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.9.22")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 gradlePlugin {
@@ -34,24 +40,6 @@ gradlePlugin {
             displayName = "i18n Plugin"
             description = "Generates Android localization from Google Sheets"
             tags.addAll(listOf("android", "i18n", "localization", "google-sheets"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("i18n") {
-            from(components["java"])
-            pom {
-                name.set("i18n")
-                description.set("Generates Android localization from Google Sheets")
-                url.set("https://github.com/portonics/i18n-gradle")
-            }
-        }
-    }
-    repositories {
-        maven {
-            url = uri("$layout.buildDirectory.get().asFile/repo")
         }
     }
 }
