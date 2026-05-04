@@ -1,6 +1,8 @@
 # Gradle
 .gradle/
 build/
+# Except gradle-wrapper.jar which should be committed
+!/gradle/wrapper/gradle-wrapper.jar
 
 # Kotlin
 *.class
