@@ -24,6 +24,21 @@ class I18nPlugin : Plugin<Project> {
             if (!extension.sheetUrl.isPresent) {
                 throw IllegalStateException("i18n.url must be configured")
             }
+
+            val generateTask = target.tasks.findByName("generateI18n") as? GenerateI18nTask
+
+            val buildVariants = listOf("debug", "release")
+            buildVariants.forEach { variant ->
+                val assembleTask = target.tasks.findByName("assemble${variant.replaceFirstChar { it.uppercase() }}")
+                if (assembleTask != null && generateTask != null) {
+                    assembleTask.dependsOn(generateTask)
+                }
+            }
+
+            val preBuildTask = target.tasks.findByName("preBuild")
+            if (preBuildTask != null && generateTask != null) {
+                preBuildTask.dependsOn(generateTask)
+            }
         }
     }
 }
