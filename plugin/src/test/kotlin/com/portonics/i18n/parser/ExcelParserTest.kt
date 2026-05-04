@@ -9,23 +9,25 @@ class ExcelParserTest {
 
     @Test
     fun parseValidCsv() {
-        val csv = """key,platform,en,my,zh
-app_name,android,My App,My App Myanmar,My App Chinese
-welcome_text,android,Welcome,Welcome Myanmar,Welcome Chinese
-button_text,android,Click Me,Click Me Myanmar,Click Me Chinese"""
+        val csv = """key,platform,default,en,my,zh
+app_name,android,My App,My App English,My App Myanmar,My App Chinese
+welcome_text,android,Welcome,Welcome English,Welcome Myanmar,Welcome Chinese
+button_text,android,Click Me,Click Me English,Click Me Myanmar,Click Me Chinese"""
 
         val result = ExcelParser.parse(csv)
 
-        assertEquals(3, result.locales.size)
-        assertTrue("en" in result.locales)
-        assertTrue("my" in result.locales)
-        assertTrue("zh" in result.locales)
+        assertEquals("default", result.defaultLocale)
+        assertEquals(3, result.additionalLocales.size)
+        assertTrue("en" in result.additionalLocales)
+        assertTrue("my" in result.additionalLocales)
+        assertTrue("zh" in result.additionalLocales)
 
         assertEquals(3, result.entries.size)
 
         val appNameEntry = result.entries.find { it.key == "app_name" }
         assertEquals("android", appNameEntry?.platform)
-        assertEquals("My App", appNameEntry?.translations?.get("en"))
+        assertEquals("My App", appNameEntry?.defaultValue)
+        assertEquals("My App English", appNameEntry?.translations?.get("en"))
         assertEquals("My App Myanmar", appNameEntry?.translations?.get("my"))
         assertEquals("My App Chinese", appNameEntry?.translations?.get("zh"))
     }
@@ -36,7 +38,8 @@ button_text,android,Click Me,Click Me Myanmar,Click Me Chinese"""
 
         val result = ExcelParser.parse(csv)
 
-        assertTrue(result.locales.isEmpty())
+        assertEquals("default", result.defaultLocale)
+        assertTrue(result.additionalLocales.isEmpty())
         assertTrue(result.entries.isEmpty())
     }
 
@@ -50,9 +53,9 @@ button_text,android,Click Me,Click Me Myanmar,Click Me Chinese"""
 
     @Test
     fun parseSkipsEmptyKeyRows() {
-        val csv = """key,platform,en,my
-,android,Value1,Value2
-valid_key,android,Value3,Value4"""
+        val csv = """key,platform,default,en,my
+,android,Value0,Value1,Value2
+valid_key,android,Value3,Value4,Value5"""
 
         val result = ExcelParser.parse(csv)
 
@@ -62,9 +65,9 @@ valid_key,android,Value3,Value4"""
 
     @Test
     fun parseHandlesMultiplePlatforms() {
-        val csv = """key,platform,en,my
-app_name,android,My App,My App Myanmar
-hello_text,ios,Hello,Hello Myanmar"""
+        val csv = """key,platform,default,en,my
+app_name,android,My App,My App English,My App Myanmar
+hello_text,ios,Hello,Hello English,Hello Myanmar"""
 
         val result = ExcelParser.parse(csv)
 
@@ -77,36 +80,38 @@ hello_text,ios,Hello,Hello Myanmar"""
 
     @Test
     fun parseHandlesMissingTranslationsAsEmpty() {
-        val csv = """key,platform,en,my,zh
+        val csv = """key,platform,default,en,my,zh
 app_name,android,My App,, """
 
         val result = ExcelParser.parse(csv)
 
         val entry = result.entries[0]
-        assertEquals("My App", entry.translations["en"])
+        assertEquals("My App", entry.defaultValue)
+        assertEquals("", entry.translations["en"])
         assertEquals("", entry.translations["my"])
-        assertEquals("", entry.translations["zh"])
+        assertTrue("zh" !in entry.translations)
     }
 
     @Test
     fun parseTrimsWhitespaceFromValues() {
-        val csv = """key,platform,en,my
-app_name,android, My App , My App Myanmar """
+        val csv = """key,platform,default,en,my
+app_name,android,My App, My App English , My App Myanmar """
 
         val result = ExcelParser.parse(csv)
 
-        assertEquals("My App", result.entries[0].translations["en"])
+        assertEquals("My App English", result.entries[0].translations["en"])
         assertEquals("My App Myanmar", result.entries[0].translations["my"])
     }
 
     @Test
     fun parseHandlesCsvWithOnlyHeaderRow() {
-        val csv = "key,platform,en"
+        val csv = "key,platform,default,en"
 
         val result = ExcelParser.parse(csv)
 
-        assertEquals(1, result.locales.size)
-        assertEquals("en", result.locales[0])
+        assertEquals("default", result.defaultLocale)
+        assertEquals(1, result.additionalLocales.size)
+        assertEquals("en", result.additionalLocales[0])
         assertTrue(result.entries.isEmpty())
     }
 }

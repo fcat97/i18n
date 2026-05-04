@@ -3,6 +3,7 @@ plugins {
     id("java-library")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "1.2.1"
+    id("org.jetbrains.kotlinx.kover") version "0.9.8"
 }
 
 group = "io.github.fcat97"
@@ -16,6 +17,7 @@ java {
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {

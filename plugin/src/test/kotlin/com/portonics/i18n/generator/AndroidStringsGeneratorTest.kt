@@ -12,14 +12,21 @@ class AndroidStringsGeneratorTest {
     @Test
     fun generateCreatesCorrectDirectoryStructure() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en", "my", "zh"),
-            entries = listOf(
-                LocalizationEntry("app_name", "android", mapOf("en" to "My App", "my" to "My App MM", "zh" to "My App CN"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "app_name",
+                platform = "android",
+                defaultValue = "My App",
+                translations = mapOf("my" to "My App MM", "zh" to "My App CN")
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = listOf("my", "zh"),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
         assertTrue(File(tempDir, "values").exists())
         assertTrue(File(tempDir, "values-my").exists())
@@ -29,55 +36,91 @@ class AndroidStringsGeneratorTest {
     @Test
     fun generateCreatesValidXmlFiles() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en", "my"),
-            entries = listOf(
-                LocalizationEntry("app_name", "android", mapOf("en" to "My App", "my" to "My App MM")),
-                LocalizationEntry("welcome_text", "android", mapOf("en" to "Welcome", "my" to "Welcome MM"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "app_name",
+                platform = "android",
+                defaultValue = "My App",
+                translations = mapOf("my" to "My App MM")
+            ),
+            LocalizationEntry(
+                key = "welcome_text",
+                platform = "android",
+                defaultValue = "Welcome",
+                translations = mapOf("my" to "Welcome MM")
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = listOf("my"),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
-        val enStrings = File(tempDir, "values/strings.xml").readText()
-        assertTrue(enStrings.contains("<?xml version=\"1.0\" encoding=\"utf-8\"?>"))
-        assertTrue(enStrings.contains("<resources>"))
-        assertTrue(enStrings.contains("</resources>"))
-        assertTrue(enStrings.contains("name=\"app_name\""))
-        assertTrue(enStrings.contains("name=\"welcome_text\""))
+        val defaultStrings = File(tempDir, "values/strings.xml").readText()
+        assertTrue(defaultStrings.contains("<?xml version=\"1.0\" encoding=\"utf-8\"?>"))
+        assertTrue(defaultStrings.contains("<resources>"))
+        assertTrue(defaultStrings.contains("</resources>"))
+        assertTrue(defaultStrings.contains("name=\"app_name\""))
+        assertTrue(defaultStrings.contains("name=\"welcome_text\""))
     }
 
     @Test
     fun generateFiltersEntriesByPlatform() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en"),
-            entries = listOf(
-                LocalizationEntry("android_key", "android", mapOf("en" to "Android Value")),
-                LocalizationEntry("ios_key", "ios", mapOf("en" to "iOS Value")),
-                LocalizationEntry("both", "android,ios", mapOf("en" to "Both Value"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "android_key",
+                platform = "android",
+                defaultValue = "Android Value",
+                translations = emptyMap()
+            ),
+            LocalizationEntry(
+                key = "ios_key",
+                platform = "ios",
+                defaultValue = "iOS Value",
+                translations = emptyMap()
+            ),
+            LocalizationEntry(
+                key = "both",
+                platform = "android,ios",
+                defaultValue = "Both Value",
+                translations = emptyMap()
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = emptyList(),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
-        val enStrings = File(tempDir, "values/strings.xml").readText()
-        assertTrue(enStrings.contains("Android Value"))
-        assertTrue(enStrings.contains("Both Value"))
-        assertTrue(!enStrings.contains("iOS Value"))
+        val defaultStrings = File(tempDir, "values/strings.xml").readText()
+        assertTrue(defaultStrings.contains("Android Value"))
+        assertTrue(defaultStrings.contains("Both Value"))
+        assertTrue(!defaultStrings.contains("iOS Value"))
     }
 
     @Test
     fun generateUsesValuesDirectoryForDefaultLocale() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en", "my"),
-            entries = listOf(
-                LocalizationEntry("app_name", "android", mapOf("en" to "My App", "my" to "My App MM"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "app_name",
+                platform = "android",
+                defaultValue = "My App",
+                translations = mapOf("my" to "My App MM")
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = listOf("my"),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
         assertTrue(File(tempDir, "values/strings.xml").exists())
     }
@@ -85,14 +128,21 @@ class AndroidStringsGeneratorTest {
     @Test
     fun generateUsesValuesLocaleDirectoryForNonDefaultLocales() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en", "my"),
-            entries = listOf(
-                LocalizationEntry("app_name", "android", mapOf("en" to "My App", "my" to "My App MM"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "app_name",
+                platform = "android",
+                defaultValue = "My App",
+                translations = mapOf("my" to "My App MM")
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = listOf("my"),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
         assertTrue(File(tempDir, "values-my/strings.xml").exists())
     }
@@ -100,43 +150,84 @@ class AndroidStringsGeneratorTest {
     @Test
     fun generateEscapesXmlSpecialCharacters() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en"),
-            entries = listOf(
-                LocalizationEntry("ampersand", "android", mapOf("en" to "A & B")),
-                LocalizationEntry("less_than", "android", mapOf("en" to "A < B")),
-                LocalizationEntry("greater_than", "android", mapOf("en" to "A > B")),
-                LocalizationEntry("quote", "android", mapOf("en" to "A \"B\"")),
-                LocalizationEntry("apostrophe", "android", mapOf("en" to "A 'B'"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "ampersand",
+                platform = "android",
+                defaultValue = "A & B",
+                translations = emptyMap()
+            ),
+            LocalizationEntry(
+                key = "less_than",
+                platform = "android",
+                defaultValue = "A < B",
+                translations = emptyMap()
+            ),
+            LocalizationEntry(
+                key = "greater_than",
+                platform = "android",
+                defaultValue = "A > B",
+                translations = emptyMap()
+            ),
+            LocalizationEntry(
+                key = "quote",
+                platform = "android",
+                defaultValue = "A \"B\"",
+                translations = emptyMap()
+            ),
+            LocalizationEntry(
+                key = "apostrophe",
+                platform = "android",
+                defaultValue = "A 'B'",
+                translations = emptyMap()
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = emptyList(),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
-        val enStrings = File(tempDir, "values/strings.xml").readText()
-        assertTrue(enStrings.contains("&amp;"))
-        assertTrue(enStrings.contains("&lt;"))
-        assertTrue(enStrings.contains("&gt;"))
-        assertTrue(enStrings.contains("&quot;"))
-        assertTrue(enStrings.contains("&apos;"))
-        assertTrue(!enStrings.contains("A & B"))
-        assertTrue(!enStrings.contains("A < B"))
+        val defaultStrings = File(tempDir, "values/strings.xml").readText()
+        assertTrue(defaultStrings.contains("&amp;"))
+        assertTrue(defaultStrings.contains("&lt;"))
+        assertTrue(defaultStrings.contains("&gt;"))
+        assertTrue(defaultStrings.contains("&quot;"))
+        assertTrue(defaultStrings.contains("&apos;"))
+        assertTrue(!defaultStrings.contains("A & B"))
+        assertTrue(!defaultStrings.contains("A < B"))
     }
 
     @Test
     fun generateSkipsEmptyTranslations() {
         val tempDir = createTempDir()
         val entries = listOf(
-            LocalizationEntry("valid_key", "android", mapOf("en" to "Value", "my" to "")),
-            LocalizationEntry("empty_key", "android", mapOf("en" to "", "my" to ""))
+            LocalizationEntry(
+                key = "valid_key",
+                platform = "android",
+                defaultValue = "Value",
+                translations = mapOf("my" to "")
+            ),
+            LocalizationEntry(
+                key = "empty_key",
+                platform = "android",
+                defaultValue = "",
+                translations = emptyMap()
+            )
         )
-        val data = LocalizationData(locales = listOf("en", "my"), entries = entries)
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = listOf("my"),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
-        val enStrings = File(tempDir, "values/strings.xml").readText()
-        assertTrue(enStrings.contains("valid_key"))
-        assertTrue(!enStrings.contains("empty_key"))
+        val defaultStrings = File(tempDir, "values/strings.xml").readText()
+        assertTrue(defaultStrings.contains("valid_key"))
+        assertTrue(!defaultStrings.contains("empty_key"))
     }
 
     @Test
@@ -145,14 +236,21 @@ class AndroidStringsGeneratorTest {
         val existingFile = File(tempDir, "old_file.txt")
         existingFile.createNewFile()
 
-        val data = LocalizationData(
-            locales = listOf("en"),
-            entries = listOf(
-                LocalizationEntry("app_name", "android", mapOf("en" to "My App"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "app_name",
+                platform = "android",
+                defaultValue = "My App",
+                translations = emptyMap()
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = emptyList(),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
         assertTrue(!existingFile.exists())
     }
@@ -160,17 +258,24 @@ class AndroidStringsGeneratorTest {
     @Test
     fun generateHandlesCommaSeparatedPlatforms() {
         val tempDir = createTempDir()
-        val data = LocalizationData(
-            locales = listOf("en"),
-            entries = listOf(
-                LocalizationEntry("key1", "android,ios", mapOf("en" to "Value"))
+        val entries = listOf(
+            LocalizationEntry(
+                key = "key1",
+                platform = "android,ios",
+                defaultValue = "Value",
+                translations = emptyMap()
             )
         )
+        val data = LocalizationData(
+            defaultLocale = "default",
+            additionalLocales = emptyList(),
+            entries = entries
+        )
 
-        AndroidStringsGenerator.generate(data, tempDir, "en")
+        AndroidStringsGenerator.generate(data, tempDir)
 
-        val enStrings = File(tempDir, "values/strings.xml").readText()
-        assertTrue(enStrings.contains("Value"))
+        val defaultStrings = File(tempDir, "values/strings.xml").readText()
+        assertTrue(defaultStrings.contains("Value"))
     }
 
     private fun createTempDir(): File {
