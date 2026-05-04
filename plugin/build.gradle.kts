@@ -41,6 +41,7 @@ gradlePlugin {
             implementationClass = "io.github.fcat97.i18n.I18nPlugin"
             displayName = "i18n Plugin"
             description = "Generates Android localization from Google Sheets"
+            website = "https://github.com/fcat97/i18n"
             tags.addAll(listOf("android", "i18n", "localization", "google-sheets"))
         }
     }
