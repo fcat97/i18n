@@ -1,9 +1,9 @@
-package com.portonics.i18n.task
+package io.github.fcat97.i18n.task
 
-import com.portonics.i18n.I18nExtension
-import com.portonics.i18n.google.SheetsClient
-import com.portonics.i18n.parser.ExcelParser
-import com.portonics.i18n.generator.AndroidStringsGenerator
+import io.github.fcat97.i18n.I18nExtension
+import io.github.fcat97.i18n.google.SheetsClient
+import io.github.fcat97.i18n.parser.ExcelParser
+import io.github.fcat97.i18n.generator.AndroidStringsGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property

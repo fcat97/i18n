@@ -1,6 +1,6 @@
-package com.portonics.i18n.task
+package io.github.fcat97.i18n.task
 
-import com.portonics.i18n.I18nExtension
+import io.github.fcat97.i18n.I18nExtension
 import kotlin.reflect.full.memberProperties
 import kotlin.test.Test
 import kotlin.test.assertEquals

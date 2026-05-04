@@ -1,4 +1,4 @@
-package com.portonics.i18n
+package io.github.fcat97.i18n
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property

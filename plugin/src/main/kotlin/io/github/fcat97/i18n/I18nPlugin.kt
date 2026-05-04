@@ -1,6 +1,6 @@
-package com.portonics.i18n
+package io.github.fcat97.i18n
 
-import com.portonics.i18n.task.GenerateI18nTask
+import io.github.fcat97.i18n.task.GenerateI18nTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

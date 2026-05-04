@@ -38,7 +38,7 @@ gradlePlugin {
     plugins {
         create("i18n") {
             id = "io.github.fcat97.i18n"
-            implementationClass = "com.portonics.i18n.I18nPlugin"
+            implementationClass = "io.github.fcat97.i18n.I18nPlugin"
             displayName = "i18n Plugin"
             description = "Generates Android localization from Google Sheets"
             tags.addAll(listOf("android", "i18n", "localization", "google-sheets"))

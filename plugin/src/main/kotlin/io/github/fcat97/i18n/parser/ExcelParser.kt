@@ -1,4 +1,4 @@
-package com.portonics.i18n.parser
+package io.github.fcat97.i18n.parser
 
 data class LocalizationEntry(
     val key: String,

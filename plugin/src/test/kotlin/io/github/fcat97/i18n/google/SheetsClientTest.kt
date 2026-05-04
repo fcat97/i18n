@@ -1,4 +1,4 @@
-package com.portonics.i18n.google
+package io.github.fcat97.i18n.google
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

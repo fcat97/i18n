@@ -1,4 +1,4 @@
-package com.portonics.i18n
+package io.github.fcat97.i18n
 
 import kotlin.reflect.full.memberProperties
 import kotlin.test.Test

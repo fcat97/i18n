@@ -1,7 +1,7 @@
-package com.portonics.i18n.generator
+package io.github.fcat97.i18n.generator
 
-import com.portonics.i18n.parser.LocalizationData
-import com.portonics.i18n.parser.LocalizationEntry
+import io.github.fcat97.i18n.parser.LocalizationData
+import io.github.fcat97.i18n.parser.LocalizationEntry
 import java.io.File
 import java.nio.file.Files
 
