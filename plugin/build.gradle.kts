@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.fcat97"
-version = "1.0.0"
+version = "0.9.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
