@@ -3,31 +3,37 @@ package com.portonics.i18n.parser
 data class LocalizationEntry(
     val key: String,
     val platform: String,
+    val defaultValue: String,
     val translations: Map<String, String>
 )
 
 data class LocalizationData(
-    val locales: List<String>,
+    val defaultLocale: String,
+    val additionalLocales: List<String>,
     val entries: List<LocalizationEntry>
 )
 
 object ExcelParser {
     private val REQUIRED_HEADERS = listOf("key", "platform")
+    private const val DEFAULT_COLUMN = "default"
 
     fun parse(csvContent: String): LocalizationData {
         val lines = csvContent.lines().filter { it.isNotBlank() }
 
         if (lines.isEmpty()) {
-            return LocalizationData(emptyList(), emptyList())
+            return LocalizationData(DEFAULT_COLUMN, emptyList(), emptyList())
         }
 
         val headers = parseCsvLine(lines[0])
         validateHeaders(headers)
 
-        val locales = headers.filter { it !in REQUIRED_HEADERS }
-        val entries = lines.drop(1).mapNotNull { line -> parseEntry(parseCsvLine(line), locales) }
+        val defaultIndex = headers.indexOf(DEFAULT_COLUMN)
+        val additionalLocales = headers.filter { it != DEFAULT_COLUMN && it !in REQUIRED_HEADERS }
+        val entries = lines.drop(1).mapNotNull { line ->
+            parseEntry(parseCsvLine(line), defaultIndex, additionalLocales)
+        }
 
-        return LocalizationData(locales, entries)
+        return LocalizationData(DEFAULT_COLUMN, additionalLocales, entries)
     }
 
     private fun validateHeaders(headers: List<String>) {
@@ -35,6 +41,9 @@ object ExcelParser {
             if (required !in headers) {
                 throw IllegalArgumentException("Missing required header: $required")
             }
+        }
+        if (DEFAULT_COLUMN !in headers) {
+            throw IllegalArgumentException("Missing required header: $DEFAULT_COLUMN")
         }
     }
 
@@ -70,7 +79,7 @@ object ExcelParser {
         return result
     }
 
-    private fun parseEntry(values: List<String>, locales: List<String>): LocalizationEntry? {
+    private fun parseEntry(values: List<String>, defaultIndex: Int, additionalLocales: List<String>): LocalizationEntry? {
         if (values.isEmpty()) return null
 
         val key = values[0].trim()
@@ -79,11 +88,16 @@ object ExcelParser {
         }
 
         val platform = if (values.size > 1) values[1].trim().lowercase() else ""
-        val translations = locales.associateWith { locale ->
-            val index = locales.indexOf(locale) + 2
-            if (index < values.size) values[index].trim() else ""
+        val defaultValue = if (defaultIndex >= 0 && defaultIndex < values.size) values[defaultIndex].trim() else ""
+
+        val translations = mutableMapOf<String, String>()
+        additionalLocales.forEachIndexed { localeIndex, locale ->
+            val valueIndex = 3 + localeIndex
+            if (valueIndex < values.size) {
+                translations[locale] = values[valueIndex].trim()
+            }
         }
 
-        return LocalizationEntry(key, platform, translations)
+        return LocalizationEntry(key, platform, defaultValue, translations)
     }
 }

@@ -20,10 +20,6 @@ abstract class I18nExtension {
     @get:Optional
     abstract val outputDir: RegularFileProperty
 
-    @get:Input
-    @get:Optional
-    abstract val defaultLocale: Property<String>
-
     fun url(url: String) {
         sheetUrl.set(url)
     }
@@ -36,7 +32,7 @@ abstract class I18nExtension {
         outputDir.set(dir as File)
     }
 
-    fun defaultLocale(locale: String) {
-        defaultLocale.set(locale)
+    companion object {
+        const val DEFAULT_OUTPUT_DIR = "build/generated/res/strings/main"
     }
 }

@@ -9,7 +9,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val textView = TextView(this)
-        textView.text = getString(R.string.welcome_text)
+        textView.text = getString(R.string.app_name)
         textView.setPadding(50, 50, 50, 50)
         setContentView(textView)
     }

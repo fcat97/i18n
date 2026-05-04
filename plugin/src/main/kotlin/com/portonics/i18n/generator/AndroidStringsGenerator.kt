@@ -8,7 +8,7 @@ import java.nio.file.Files
 object AndroidStringsGenerator {
     private const val PLATFORM_ANDROID = "android"
 
-    fun generate(data: LocalizationData, outputDir: File, defaultLocale: String) {
+    fun generate(data: LocalizationData, outputDir: File) {
         if (outputDir.exists()) {
             outputDir.deleteRecursively()
         }
@@ -16,8 +16,10 @@ object AndroidStringsGenerator {
 
         val androidEntries = data.entries.filter { it.platform.contains(PLATFORM_ANDROID) }
 
-        data.locales.forEach { locale ->
-            generateLocaleStrings(locale, androidEntries, outputDir, defaultLocale)
+        generateLocaleStrings(data.defaultLocale, androidEntries, outputDir, data.defaultLocale)
+
+        data.additionalLocales.forEach { locale ->
+            generateLocaleStrings(locale, androidEntries, outputDir, data.defaultLocale)
         }
     }
 
@@ -27,7 +29,7 @@ object AndroidStringsGenerator {
         outputDir: File,
         defaultLocale: String
     ) {
-        val localeDir = if (locale == defaultLocale) {
+        val localeDir = if (locale == defaultLocale || locale == "default") {
             File(outputDir, "values")
         } else {
             File(outputDir, "values-$locale")
@@ -40,7 +42,7 @@ object AndroidStringsGenerator {
             appendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
             appendLine("<resources>")
             entries.forEach { entry ->
-                val translation = entry.translations[locale]
+                val translation = entry.translations[locale] ?: entry.defaultValue
                 if (!translation.isNullOrEmpty()) {
                     val escapedKey = escapeXml(entry.key)
                     val escapedValue = escapeXml(translation)

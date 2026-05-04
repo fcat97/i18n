@@ -18,7 +18,6 @@ class I18nPlugin : Plugin<Project> {
             task.sheetUrl.convention(extension.sheetUrl)
             task.credentialsFile.convention(extension.credentialsFile)
             task.outputDir.convention(extension.outputDir)
-            task.defaultLocale.convention(extension.defaultLocale)
         }
 
         target.afterEvaluate {
