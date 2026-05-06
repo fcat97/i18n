@@ -1,0 +1,5 @@
+{
+  "url": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID_HERE/edit",
+  "outputDir": "MyApp/Resources",
+  "format": "strings"
+}

@@ -1,5 +1,16 @@
-.gradle
+# Swift / Xcode
+.build/
+*.xcuserdata
+*.xcworkspace/xcuserdata/
+.DS_Store
+Package.resolved
+
+# i18n cache
+.i18n-cache/
+
+# Gradle (legacy, from old plugin experiments)
+.gradle/
+
+# Android demo (not part of this branch's plugin)
 demo/
 local.properties
-plugin/build/
-plugin/.gradle/
