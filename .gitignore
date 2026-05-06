@@ -1,4 +1,5 @@
 .gradle
 demo/
 local.properties
-plugin/
+plugin/build/
+plugin/.gradle/

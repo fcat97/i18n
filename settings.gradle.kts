@@ -1,0 +1,25 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    includeBuild("plugin")
+}
+
+plugins {
+    id("org.jetbrains.kotlin.jvm") version "1.9.22" apply false
+    id("org.jetbrains.kotlinx.kover") version "0.9.8" apply false
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "i18n-gradle"
