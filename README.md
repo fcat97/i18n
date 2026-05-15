@@ -28,13 +28,46 @@ Manage your app translations in a **single Google Sheet** and generate iOS local
 
 ### 1. Add the Package
 
-In your Xcode project or `Package.swift`:
+**Option A — Swift Package (already has `Package.swift`)**
+
+Add the dependency to your existing `Package.swift`:
 
 ```swift
 .package(url: "https://github.com/fcat97/i18n", branch: "ios")
 ```
 
 > No target dependency needed — the plugin is used as a command, not a library.
+
+**Option B — Xcode project (no `Package.swift`)**
+
+The `swift package plugin` command requires a Swift package context. Create a minimal `Package.swift` in your project root (next to the `.xcodeproj`):
+
+```swift
+// swift-tools-version: 5.9
+import PackageDescription
+
+let package = Package(
+    name: "LocalizationTools",
+    dependencies: [
+        .package(url: "https://github.com/fcat97/i18n", branch: "ios")
+    ],
+    targets: [
+        .target(name: "LocalizationTools", path: "Sources/LocalizationTools")
+    ]
+)
+```
+
+Then create the required (empty) source directory:
+
+```bash
+mkdir -p Sources/LocalizationTools
+```
+
+This `Package.swift` is only used for running the plugin from the terminal — it doesn't affect your Xcode build. Resolve packages once with:
+
+```bash
+swift package resolve
+```
 
 ### 2. Set Up Your Google Sheet
 
@@ -203,6 +236,37 @@ i18n/
         ├── XcstringsGeneratorTests.swift
         └── ConfigAndSheetsClientTests.swift
 ```
+
+---
+
+## Troubleshooting
+
+### `error: Missing expected plugin command`
+
+This happens when `swift package plugin generate-ios-i18n` is run outside of a Swift package context (i.e., in an Xcode-only project with no `Package.swift`). Follow **Option B** in Step 1 above to create a minimal wrapper `Package.swift`.
+
+### `fatal: cannot use bare repository … (safe.bareRepository is 'explicit')`
+
+Newer Git versions restrict bare repository access by default, which breaks `swift package resolve`. Fix with:
+
+```bash
+git config --global safe.bareRepository all
+```
+
+Then clear the SPM build cache and re-resolve:
+
+```bash
+rm -rf .build
+swift package resolve
+```
+
+### Plugin permission denied / sandbox errors
+
+SPM command plugins require explicit write permission. If Xcode prompts, click **Allow**. On the command line, the plugin declares write access in its manifest, so no extra flag is needed.
+
+### Sheet download fails
+
+Ensure your Google Sheet is published as CSV: **File → Share → Publish to web → select "Comma-separated values (.csv)"**, then copy the share URL into `i18n.json`. The `/edit` URL also works — the plugin converts it internally.
 
 ---
 
