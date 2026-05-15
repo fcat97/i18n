@@ -1,5 +1,6 @@
 package io.github.fcat97.i18n
 
+import com.android.build.gradle.BaseExtension
 import io.github.fcat97.i18n.task.GenerateI18nTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -24,6 +25,16 @@ class I18nPlugin : Plugin<Project> {
             if (!extension.sheetUrl.isPresent) {
                 throw IllegalStateException("i18n.url must be configured")
             }
+
+            val outputDirFile = if (extension.outputDir.isPresent) {
+                extension.outputDir.asFile.get()
+            } else {
+                target.file(I18nExtension.DEFAULT_OUTPUT_DIR)
+            }
+
+            // Register the generated res directory so the Android build system picks it up
+            val androidExtension = target.extensions.findByType(BaseExtension::class.java)
+            androidExtension?.sourceSets?.getByName("main")?.res?.srcDir(outputDirFile)
 
             val generateTask = target.tasks.findByName("generateI18n") as? GenerateI18nTask
 

@@ -16,12 +16,14 @@ java {
 }
 
 repositories {
+    google()
     mavenCentral()
     gradlePluginPortal()
 }
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    compileOnly("com.android.tools.build:gradle:8.2.2")
 
     testImplementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.22")
@@ -35,6 +37,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 gradlePlugin {
+    website = "https://github.com/fcat97/i18n"
+    vcsUrl = "https://github.com/fcat97/i18n.git"
     plugins {
         create("i18n") {
             id = "io.github.fcat97.i18n"
@@ -42,6 +46,7 @@ gradlePlugin {
             displayName = "i18n Plugin"
             description = "Generates Android localization from Google Sheets"
             website = "https://github.com/fcat97/i18n"
+            vcsUrl = "https://github.com/fcat97/i18n.git"
             tags.addAll(listOf("android", "i18n", "localization", "google-sheets"))
         }
     }
